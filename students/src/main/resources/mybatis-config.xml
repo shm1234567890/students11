@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties resource="db.properties">
+
+    </properties>
+    <typeAliases>
+        <typeAlias type="cn.accp.domain.Classes" alias="Classes"/>
+        <typeAlias type="cn.accp.domain.Student" alias="Student"/>
+    </typeAliases>
+    <typeHandlers>
+        <typeHandler handler="cn.accp.handler.ClassesTypeHandler"/>
+    </typeHandlers>
+    <environments default="development">
+        <!--default后面放的是某一个environment中id的值-->
+        <environment id="development">
+            <!--一个项目可以有多个environment，但是只有一个可以生效-->
+            <!--id后面的是名字，可以任意指定-->
+            <transactionManager type="JDBC"/>
+            <!--transactionManager指当前项目中的事务由谁来管理，此处JDBC指数据库自行管理-->
+            <dataSource type="POOLED">
+                <!--type="[UNPOOLED|POOLED|JNDI]"
+                UNPOOLED表示不使用数据库连接池，效率低下
+                POOLED使用数据库连接池，效率较高
+                JNDI表示Java名字目录接口，通常是Web容器提供的功能
+                -->
+                <!--dataSource表示数据源，既数据库的连接信息-->
+                <!--POOLED表示使用数据库连接池-->
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+
+
+        </environment>
+    </environments>
+    <mappers>
+        <!--<mapper class="cn.accp.repository.BlogMapper"/>-->
+        <!--mappers主要用来放mapper，一个项目有多少映射文件，这里就有多少行-->
+        <mapper resource="mappers/StudentsMappers.xml"/>
+        <mapper resource="mappers/ClassesMapper.xml"/>
+        <!--resource后面写映射文件的路径，以/分开-->
+    </mappers>
+</configuration>

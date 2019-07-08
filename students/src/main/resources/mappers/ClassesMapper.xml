@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.accp.mapper.ClassesMapper">
+
+    <cache/>
+    <resultMap id="ClassResultMap" type="Classes">
+        <id property="id" column="cid"/>
+        <result column="cname" property="name"/>
+
+        <collection property="student" ofType="Student">
+            <id column="id" property="id"/>
+            <result column="name" property="name"/>
+            <result column="gender" property="gender"/>
+            <result column="telephone" property="telephone"/>
+            <result column="email" property="email"/>
+            <result column="age" property="age"/>
+        </collection>
+
+    </resultMap>
+
+   <select id="findAll"  resultMap="ClassResultMap" flushCache="false" useCache="true"> /*resultType="cn.accp.domain.Classes"*/
+        select s.id, s.name, s.age, s.gender, s.telephone, s.email, c.id as cid, c.name as cname
+        from classes c inner join students s
+        on s.classid = c.id
+   </select>
+
+
+</mapper>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--这个文件称作映射文件，每一个接口都对应一个映射文件-->
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.accp.mapper.StudentsMapper">
+    <cache type="cn.accp.cache.MyCache"/>
+    <!--namespace后面写的是这个映射文件对应的接口的包名和接口名-->
+
+    <resultMap id="classesResultMap" type="cn.accp.domain.Student">
+        <constructor>
+            <idArg column="id" javaType="int"/>
+            <arg column="name" javaType="java.lang.String" />
+            <arg column="age" javaType="int"/>
+            <arg column="gender" javaType="java.lang.String" />
+            <arg column="telephone" javaType="java.lang.String" />
+            <arg column="email" javaType="java.lang.String" />
+            <arg column="classid" javaType="cn.accp.domain.Classes" typeHandler="cn.accp.handler.ClassesTypeHandler"/>
+        </constructor>
+
+        <!--resultMap用来表达一个实体属性和数据库表格列之间的对应关系-->
+        <!--resultMap和resultType只能二者取一个-->
+        <!--id任意起名字，type写实体的包名和类名-->
+        <id column="id" property="id"/>
+        <!--id表示主键列，property表示实体的属性名，column表示列名-->
+        <!--result表示普通的列-->
+        <result column="name" property="name"/>
+        <result column="age" property="age"/>
+        <result column="gender" property="gender"/>
+        <result column="telephone" property="telephone"/>
+        <result column="email" property="email"/>
+        <association property="classes" column="classid" javaType="cn.accp.domain.Classes">
+           <id column="cid" property= "id"/>
+            <result column="cname" property="name"/>
+        </association>
+    </resultMap>
+
+    <sql id="sqlall">name,age,gender,telephone,role,email,classid</sql>
+
+    <!--id后面跟的是接口中方法的名字-->
+    <!--select标签一定有resultType或resultMap属性-->
+    <!--resultType后面跟的是方法返回值类型的包名和类名-->
+    <!--resultMap后面跟的是<resultMap>标签的id-->
+    <!--尽量不要用resultType，而应该用resultMap-->
+    <select id="findAll" resultMap="classesResultMap" flushCache="false" useCache="true"><!--resultType="cn.accp.domain.Student"-->
+        select s.id,s.name,s.age,s.gender,s.telephone,s.email,classid,c.id as cid,c.name as cname
+        from students s inner join classes c
+        on s.classid=c.id;
+    </select>
+
+    <!--insert update delete标签没有resultType-->
+    <!--useGeneratedKeys 获得主键的内容-->
+
+    <insert id="save" parameterType="Student" useGeneratedKeys="true" keyProperty="id" flushCache="true">
+        insert into students(<include refid="sqlall"/>)
+        values (#{name,javaType=java.lang.String,jdbcType=NVARCHAR},#{age,javaType=int,jdbcType=INTEGER},#{gender},#{telephone},#{role,typeHandler=org.apache.ibatis.type.EnumTypeHandler},#{email},#{classes.id})
+    </insert>
+
+    <select id="findByCondition" parameterType="cn.accp.domain.StudentCondition" flushCache="false" useCache="true" resultMap="classesResultMap">
+        select * from students
+        <!--<where>
+            <if test="name !=null">and name=#{name}</if>
+            <if test="minAge !=null and maxAge !=null">and age between #{minAge} and #{maxAge}</if>
+            <if test="gender !=null">and gender=#{gender}</if>
+        </where>-->
+
+        <trim prefix="where" prefixOverrides="and | or">
+            <if test="name !=null">and name=#{name}</if>
+            <if test="minAge !=null and maxAge !=null">and age between #{minAge} and #{maxAge}</if>
+            <if test="gender !=null">and gender=#{gender}</if>
+        </trim>
+    </select>
+
+    <select id="findByids" resultMap="classesResultMap" parameterType="cn.accp.domain.Student" flushCache="false" useCache="true">
+        select * from  students where id in
+        <foreach collection="list" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+
+    </select>
+
+</mapper>
